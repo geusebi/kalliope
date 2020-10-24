@@ -81,3 +81,25 @@ class KSession(object):
     
     def delete(self, *args, **kwargs):
         return self.request("DELETE", *args, **kwargs)
+
+'''
+# Idea for a connection string
+alnumspec = "[a-z0-9!?.,$-]"
+urlstring = f"""
+    ^
+    \s*                                 # leading space
+    (?P<scheme>http|https)://           # "scheme" ://
+    (                                   # optional "user:pass@"
+        (?P<username>{alnumspec}+):     # "user"
+        (?P<password>{alnumspec}+)      # "pass"
+        @
+    )?
+    (?P<address>[a-zA-Z0-9.-]+)         # "address"
+    (/                                  # optional "/" something
+        (?P<tenant>{alnumspec}+)?       # optional tenant
+    )?
+    \s*                                 # trailing space
+    $
+"""
+#urlstring_re = re.compile(urlstring_re, re.VERBOSE | re.INSENSITIVE)
+'''
