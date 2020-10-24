@@ -15,7 +15,7 @@ class KAuth(object):
         self.conn = conn
         self.user, self.password, self.domain = user, password, domain 
         
-        self._salt = self._created = self._nonce = self._last_nonce = None
+        self._salt = self._created = self._nonce = None
     
     def xauth(self, reset=True):
         value = (
@@ -52,7 +52,7 @@ class KAuth(object):
 
     @property
     def nonce(self):
-        if self._nonce in (self._last_nonce, None):
+        if self._nonce is None:
             self._nonce = "".join(choices(KAuth.exa, k=32))
 
         return self._nonce
