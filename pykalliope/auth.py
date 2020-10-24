@@ -67,7 +67,7 @@ class KAuth(object):
     @property
     def salt(self):
         if self._salt is None:
-            if conn is None:
+            if self.conn is None:
                 raise ValueError("No connection to get the 'salt' value")
             path = f"/rest/salt/{self.domain}"
             headers={"Accept": "application/json"}
