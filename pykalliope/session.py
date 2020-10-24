@@ -28,10 +28,7 @@ class KSession(object):
         "Accept": "application/json"
     }
     
-    def __init__(self,
-        scheme, address,
-        timeout=4, headers=None
-    ):
+    def __init__(self, scheme, address, timeout=4, headers=None):
         self.scheme, self.address = scheme, address
         
         self.timeout = timeout
@@ -43,7 +40,7 @@ class KSession(object):
         self.auth = None
     
     def login(self, username, password, domain="default"):
-        self.auth = Kauth(username, password, domain)
+        self.auth = KAuth(self, username, password, domain)
         return self
     
     def logout(self):
@@ -70,7 +67,7 @@ class KSession(object):
     
     def request(self, method, path, noauth=False, headers=None, *args, **kwargs):
         url = self.prepare_url(path)
-        headers = prepare_headers(xauth, headers)
+        headers = self.prepare_headers(noauth, headers)
         return requests.request(method, url, headers=headers, *args, **kwargs)
     
     def get(self, *args, **kwargs):
