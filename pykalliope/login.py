@@ -1,33 +1,103 @@
 from datetime import datetime, tzinfo, timedelta
 from random import choices, seed as _seed
-
-from socket import timeout as Timeout
-
-# Workaround for IncompleteRead errors
-import http.client as http
-http.HTTPConnection._http_vsn = 10
-http.HTTPConnection._http_vsn_str = 'HTTP/1.0'
-
-from urllib.request import urlopen, Request
-from urllib.error import HTTPError, URLError
-from json import loads as json_parse
-
 from hashlib import sha256
 from base64 import b64encode
+import requests
+
+
+# Using requests might solve some problems encountered while sing urllib2.
+# That being said I won't use Session objects because as of now I see no
+# reason to have a session-aware connection (kalliope pbx is not designed
+# this way). Even though there may be some advantages I'll try to avoid
+# such objects for now.
+# Still, I'll mimic some of the functionality (loosely) and try to use 
+# the same class names.
+
+# Absolutely not tested. 
+
+# Exempli gratia
+# sess = KSession("http", "10.0.0.1")
+# sess.login("user", "pass")
+#
+# accounts = sess.get("/rest/account").json()
+
+# todo: split in multiple files and test against a kalliope server
+# todo: add unit tests
+# todo: add meaningful documentation
+
+
+class KSession(object):
+    _def_headers = {
+        "Accept": "application/json"
+    }
+    
+    def __init__(self,
+        scheme, address,
+        timeout=4, headers=None
+    ):
+        self.scheme, self.address = scheme, address
+        
+        self.timeout = timeout
+        
+        if headers is None:
+            headers = {}
+        self.headers = {**KSession._def_headers, **headers}
+        
+        self.auth = None
+    
+    def login(self, username, password, domain="default"):
+        self.auth = Kauth(username, password, domain)
+        return self
+    
+    def logout(self):
+        self.auth = None
+        return self
+    
+    def prepare_url(self, path):
+        if path.startswith("/"):
+            path = path[1:]
+        return f"{self.scheme}://{self.address}/{path}"
+    
+    def prepare_headers(self, noauth=False, headers=None):
+        if headers is None
+            headers = {}
+        
+        if noauth is False:
+            if self.auth is None:
+                raise Exception("Not logged in")
+            xheaders = self.auth.xauth()
+        else:
+            xheaders = {}
+        
+        return {**self.headers, **xheaders, **headers}
+    
+    def request(self, method, path, noauth=False, headers=None, *args, **kwargs):
+        url = self.prepare_url(path)
+        headers = prepare_headers(xauth, headers)
+        return requests.request(method, url, headers=headers, *args, **kwargs)
+    
+    def get(self, *args, **kwargs):
+        return self.request("GET", *args, **kwargs)
+    
+    def post(self, *args, **kwargs):
+        return self.request("POST", *args, **kwargs)
+    
+    def put(self, *args, **kwargs):
+        return self.request("PUT", *args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        return self.request("DELETE", *args, **kwargs)
 
 
 class KAuth(object):
     exa = "0123456789abcdef"
     datetime_fmt = "%Y-%m-%dT%H:%M:%S%Z"
 
-    def __init__(self,
-        scheme, ip, user, password, domain="default",
-        nonce=None, created=None, salt=None
-    ):
-        self.scheme, self.ip = scheme, ip
-        self.user, self.password = user, password
-        self.domain, self.salt = domain, salt
-        self.created, self.nonce, self._last_nonce = created, nonce, None
+    def __init__(self, conn, user, password, domain):
+        self.conn = conn
+        self.user, self.password, self.domain = user, password, domain 
+        
+        self._salt = self._created = self._nonce = self._last_nonce = None
     
     def xauth(self, reset=True):
         value = (
@@ -38,8 +108,8 @@ class KAuth(object):
         )
 
         if reset:
-            self.nonce = None
-            self.created = None
+            self._nonce = None
+            self._created = None
         
         return {"X-authenticate": value}
 
@@ -57,25 +127,17 @@ class KAuth(object):
         data = f"{self.password}{{{self.salt}}}"
         message = bytearray(data, "utf-8")
         return sha256(message).hexdigest()
-
-    @property
-    def address(self):
-        return f"{self.scheme}://{self.ip}"
     
     def now(self, delta={}):
         dt = datetime.now(Zulu()) + timedelta(**delta)
-        return dt.strftime(XAuthGenerator.datetime_fmt)
+        return dt.strftime(KAuth.datetime_fmt)
 
     @property
     def nonce(self):
         if self._nonce in (self._last_nonce, None):
-            self._nonce = "".join(choices(XAuthGenerator.exa, k=32))
+            self._nonce = "".join(choices(KAuth.exa, k=32))
 
         return self._nonce
-    
-    @nonce.setter
-    def nonce(self, value):
-        self._nonce = value
 
     @property
     def created(self):
@@ -83,28 +145,29 @@ class KAuth(object):
             self._created = self.now()
         
         return self._created
-    
-    @created.setter
-    def created(self, value):
-        self._created = value
 
     @property
     def salt(self):
         if self._salt is None:
-            data = get(f"{self.address}/rest/salt/{self.domain}")
-            self.salt = data["salt"]
+            if conn is None:
+                raise ValueError("No connection to get the 'salt' value")
+            path = f"/rest/salt/{self.domain}"
+            headers={"Accept": "application/json"}
+            
+            response = self.conn.get(path, noauth=True, headers)
+            data = response.json()
+            self._salt = data["salt"]
         
         return self._salt
 
     @salt.setter
     def salt(self, value):
         self._salt = value
-
+    
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
-            f"scheme={self.scheme!r}, "
-            f"ip={self.ip!r}, "
+            f"conn={self.conn!r}, "
             f"user={self.user!r}, "
             f"password={self.password!r}, "
             f"domain={self.domain!r}, "
@@ -129,78 +192,3 @@ class Zulu(tzinfo):
     
     def tzname(self, dt):
         return "Z"
-
-
-_def_headers = {"Accept": "application/json"}
-
-def get(url, headers=_def_headers, timeout=4):
-    headers = {**_def_headers, **headers}
-
-    try:
-        req = Request(url, headers=headers)
-        response = urlopen(req, timeout=timeout)
-
-        try:
-            data = response.read().decode('utf-8')
-        except http.client.IncompleteRead as frag:
-            data = frag.partial.decode('utf-8')
-
-        return json_parse(data)
-    
-    except (URLError, HTTPError, Timeout):
-        raise
-
-
-class KRequest(object):
-    DATATYPES = ("json", "str", )
-
-    def __init__(self, auth, datatype="json"):
-        self.def_headers = {}
-
-        self.datatype = datatype.lower()
-        if self.datatype not in KConnection.DATATYPES:
-            raise ValueError(f"Invalid datatype '{datatype}'")
-        
-        if self.datatype == "json":
-            self.def_headers = {"accept": "application/json"}
-
-    def get(self, *args, **kwargs):
-        if self.datatype == "json":
-            return self.get_json(*args, **kwargs)
-        return self.get_str(*args, **kwargs)
-
-    def get_json(self, *args, **kwargs):
-        return json_parse(self.get_str(*args, **kwargs))
-        
-    def get_str(self, url, headers={}, timeout=4):
-        headers = {**self.def_headers, **headers}
-
-        try:
-            req = Request(url, headers=headers)
-            response = urlopen(req, timeout=timeout)
-
-            try:
-                data = response.read().decode('utf-8')
-            except http.client.IncompleteRead as frag:
-                data = frag.partial.decode('utf-8')
-
-            return data
-        
-        except (URLError, HTTPError, Timeout):
-            raise
-
-    
-    def _unimplemented(self, *args, **kwargs):
-        raise NotImplemented
-
-    post_str = KConnection._unimplemented
-    post_json = KConnection._unimplemented
-    post = post_json
-
-    delete_str = KConnection._unimplemented
-    delete_json = KConnection._unimplemented
-    delete = delete_json
-
-    put_str = KConnection._unimplemented
-    put_json = KConnection._unimplemented
-    put = delete_json
