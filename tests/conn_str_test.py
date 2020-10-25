@@ -3,12 +3,13 @@ from pykalliope.conn_str_re import conn_str_re
 
 
 test_values = [
-    ('http://example.com', ('http', None, None, 'example.com', None)),
-    ('https://example.com', ('https', None, None, 'example.com', None)),
-    ('http://example.com/default', ('http', None, None, 'example.com', 'default')),
-    ('http://user:pass@example.com/default', ('http', 'user', 'pass', 'example.com', 'default')),
-    ('   http://user:pass@example.com/default   ', ('http', 'user', 'pass', 'example.com', 'default')),
-    ('http://user#:pass,@example.com/default-', ('http', 'user#', 'pass,', 'example.com', 'default-')),
+    ('http://example.com', ('http', None, None, 'example.com', None, None)),
+    ('https://example.com', ('https', None, None, 'example.com', None, None)),
+    ('http://example.com/default', ('http', None, None, 'example.com', None, 'default')),
+    ('http://example.com:8080/default', ('http', None, None, 'example.com', '8080', 'default')),
+    ('http://user:pass@example.com/default', ('http', 'user', 'pass', 'example.com', None, 'default')),
+    ('   http://user:pass@example.com/default   ', ('http', 'user', 'pass', 'example.com', None, 'default')),
+    ('http://user#:pass,@example.com/default-', ('http', 'user#', 'pass,', 'example.com', None, 'default-')),
     ('htp://example.com', None),
     ('http://user@example.com', None),
     ('http://user:@example.com', None),
