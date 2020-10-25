@@ -1,0 +1,26 @@
+import unittest
+from pykalliope.conn_str_re import conn_str_re
+
+
+test_values = [
+    ('http://example.com', ('http', None, None, 'example.com', None)),
+    ('https://example.com', ('https', None, None, 'example.com', None)),
+    ('http://example.com/default', ('http', None, None, 'example.com', 'default')),
+    ('http://user:pass@example.com/default', ('http', 'user', 'pass', 'example.com', 'default')),
+    ('   http://user:pass@example.com/default   ', ('http', 'user', 'pass', 'example.com', 'default')),
+    ('http://user#:pass,@example.com/default-', ('http', 'user#', 'pass,', 'example.com', 'default-')),
+    ('htp://example.com', None),
+    ('http://user@example.com', None),
+    ('http://user:@example.com', None),
+]
+
+
+class ConnectionStringTest(unittest.TestCase):
+    def test_connection_string(self):
+        for i, (conn_str, expected) in enumerate(test_values):
+            with self.subTest(sub_test_num=i):
+                match = conn_str_re.match(conn_str)
+                if match:
+                    self.assertEqual(match.groups(), expected)
+                else:
+                    self.assertEqual(None, expected)
