@@ -11,9 +11,10 @@ class KAuth(object):
     exa = "0123456789abcdef"
     datetime_fmt = "%Y-%m-%dT%H:%M:%S%Z"
 
-    def __init__(self, conn, user, password, domain):
+    def __init__(self, conn, user, password, domain=None):
         self.conn = conn
-        self.user, self.password, self.domain = user, password, domain 
+        self.user, self.password = user, password
+        self.domain = "default" if domain is None else domain
         
         self._salt = self._created = self._nonce = None
     
