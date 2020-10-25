@@ -1,4 +1,5 @@
 from .auth import KAuth
+from .conn_str_re import conn_str_re
 import requests
 
 
@@ -38,6 +39,22 @@ class KSession(object):
         self.headers = {**KSession._def_headers, **headers}
         
         self.auth = None
+    
+    @staticmethod
+    def from_connection_string(conn_str, *args, **kwargs):
+        match = conn_str_re.match(conn_str)
+        if not match:
+            raise ValueError(f"Invalid connection string {conn_str!r}")
+        
+        scheme, username, password, address, domain = match.groups()
+        conn = KSession(scheme, address, *args, **kwargs)
+        
+        if username is not None and password is not None:
+            conn.login(username, password, domain)
+        
+        return conn
+    
+    from_cs =from_conn_str = from_connection_string
     
     def login(self, username, password, domain="default"):
         self.auth = KAuth(self, username, password, domain)
@@ -82,24 +99,3 @@ class KSession(object):
     def delete(self, *args, **kwargs):
         return self.request("DELETE", *args, **kwargs)
 
-'''
-# Idea for a connection string
-alnumspec = "[a-z0-9!?.,$-]"
-urlstring = f"""
-    ^
-    \s*                                 # leading space
-    (?P<scheme>http|https)://           # "scheme" ://
-    (                                   # optional "user:pass@"
-        (?P<username>{alnumspec}+):     # "user"
-        (?P<password>{alnumspec}+)      # "pass"
-        @
-    )?
-    (?P<address>[a-zA-Z0-9.-]+)         # "address"
-    (/                                  # optional "/" something
-        (?P<tenant>{alnumspec}+)?       # optional tenant
-    )?
-    \s*                                 # trailing space
-    $
-"""
-#urlstring_re = re.compile(urlstring_re, re.VERBOSE | re.INSENSITIVE)
-'''
