@@ -25,15 +25,16 @@ import requests
 
 
 class KSession(object):
+    _def_port = 80
     _def_headers = {
         "Accept": "application/json"
     }
     
-    def __init__(self, scheme, address, timeout=4, headers=None):
-        self.scheme, self.address = scheme, address
+    def __init__(self, scheme, address, port=None, timeout=4, headers=None):
+        self.scheme, self.address, self.port =  scheme, address, port
         
         self.timeout = timeout
-        
+
         if headers is None:
             headers = {}
         self.headers = {**KSession._def_headers, **headers}
@@ -46,11 +47,11 @@ class KSession(object):
         if not match:
             raise ValueError(f"Invalid connection string {conn_str!r}")
         
-        scheme, username, password, address, domain = match.groups()
-        conn = KSession(scheme, address, *args, **kwargs)
+        parts = match.groupdict()
+        conn = KSession(parts["scheme"], parts["host"], *args, **kwargs)
         
-        if username is not None and password is not None:
-            conn.login(username, password, domain)
+        if parts["username"] is not None and parts["password"] is not None:
+            conn.login(parts["username"], parts["password"], parts["domain"])
         
         return conn
     
@@ -67,7 +68,10 @@ class KSession(object):
     def prepare_url(self, path):
         if path.startswith("/"):
             path = path[1:]
-        return f"{self.scheme}://{self.address}/{path}"
+        
+        port = f":{self.port}" if self.port else ""
+
+        return f"{self.scheme}://{self.address}{port}/{path}"
     
     def prepare_headers(self, noauth=False, headers=None):
         if headers is None:
@@ -98,4 +102,3 @@ class KSession(object):
     
     def delete(self, *args, **kwargs):
         return self.request("DELETE", *args, **kwargs)
-
