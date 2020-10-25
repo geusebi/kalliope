@@ -25,8 +25,7 @@ class RequestsTest(unittest.TestCase):
     
     @responses.activate
     def test_get_salt(self):
-        conn = KSession("http", "192.168.1.1")
-        conn.login("admin", "admin", "default")
+        conn = KSession.from_cs("http://admin:admin@192.168.1.1/")
         
         _ = conn.get("/")
         
