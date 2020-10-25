@@ -31,7 +31,7 @@ class KSession(object):
     }
     
     def __init__(self, scheme, address, port=None, timeout=4, headers=None):
-        self.scheme, self.address, self.port =  scheme, address, port
+        self.scheme, self.address, self.port = scheme, address, port
         
         self.timeout = timeout
 
@@ -48,7 +48,7 @@ class KSession(object):
             raise ValueError(f"Invalid connection string {conn_str!r}")
         
         parts = match.groupdict()
-        conn = KSession(parts["scheme"], parts["host"], *args, **kwargs)
+        conn = KSession(parts["scheme"], parts["host"], parts["port"], *args, **kwargs)
         
         if parts["username"] is not None and parts["password"] is not None:
             conn.login(parts["username"], parts["password"], parts["domain"])
