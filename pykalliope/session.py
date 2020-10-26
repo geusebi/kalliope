@@ -1,5 +1,5 @@
 from .auth import KAuth
-from .conn_str_re import conn_str_re
+from .cs_re import cs_re
 import requests
 
 
@@ -20,7 +20,6 @@ import requests
 # accounts = sess.get("/rest/account").json()
 
 # todo: test against a kalliope server
-# todo: add unit tests
 # todo: add meaningful documentation
 
 
@@ -43,7 +42,7 @@ class KSession(object):
     
     @staticmethod
     def from_connection_string(conn_str, *args, **kwargs):
-        match = conn_str_re.match(conn_str)
+        match = cs_re.match(conn_str)
         if not match:
             raise ValueError(f"Invalid connection string {conn_str!r}")
         
@@ -55,7 +54,7 @@ class KSession(object):
         
         return conn
     
-    from_cs =from_conn_str = from_connection_string
+    from_cs = from_conn_str = from_connection_string
     
     def login(self, username, password, domain="default"):
         self.auth = KAuth(self, username, password, domain)

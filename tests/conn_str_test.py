@@ -1,5 +1,5 @@
 import unittest
-from pykalliope.conn_str_re import conn_str_re
+from pykalliope.cs_re import cs_re
 
 
 test_values = [
@@ -20,7 +20,7 @@ class ConnectionStringTest(unittest.TestCase):
     def test_connection_string(self):
         for i, (conn_str, expected) in enumerate(test_values):
             with self.subTest(sub_test_num=i):
-                match = conn_str_re.match(conn_str)
+                match = cs_re.match(conn_str)
                 if match:
                     self.assertEqual(match.groups(), expected)
                 else:
