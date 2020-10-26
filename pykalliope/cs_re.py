@@ -24,13 +24,13 @@ domain = fr"(?P<domain>{alnumspec}+)"  # As in "tenant's domain"
 
 # Port number is any digit with a length of 1 to 5 
 # ports 0 and from 65536 to 99999 are considered valid because regexes
-# tend to be unreadable is this cases (i.e.):
+# tend to be unreadable is these cases (i.e.):
 #   "6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{1,3}?"
 port = r"(?P<port>[0-9]{1,5})"
 
-# A host is a series of one or more labels followed by a "." (dot).
+# A "host" is a series of one or more labels followed by a "." (dot).
 # Every label is an alphanumeric string which could contain "-"s (dash)
-# but could not starts or ends with them.
+# but could not start or end with them.
 # The last dot is optional (fqdn).
 host = fr"""
   (?P<host>
