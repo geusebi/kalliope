@@ -1,4 +1,4 @@
-from .auth import KAuth
+from .Auth import Auth
 from .cs_re import cs_re
 import requests
 
@@ -23,7 +23,10 @@ import requests
 # todo: add meaningful documentation
 
 
-class KSession(object):
+__all__ = ("Session", )
+
+
+class Session(object):
     _def_port = 80
     _def_headers = {
         "Accept": "application/json"
@@ -36,7 +39,7 @@ class KSession(object):
 
         if headers is None:
             headers = {}
-        self.headers = {**KSession._def_headers, **headers}
+        self.headers = {**Session._def_headers, **headers}
         
         self.auth = None
     
@@ -47,7 +50,7 @@ class KSession(object):
             raise ValueError(f"Invalid connection string {conn_str!r}")
         
         parts = match.groupdict()
-        conn = KSession(parts["scheme"], parts["host"], parts["port"], *args, **kwargs)
+        conn = Session(parts["scheme"], parts["host"], parts["port"], *args, **kwargs)
         
         if parts["username"] is not None and parts["password"] is not None:
             conn.login(parts["username"], parts["password"], parts["domain"])
@@ -57,7 +60,7 @@ class KSession(object):
     from_cs = from_conn_str = from_connection_string
     
     def login(self, username, password, domain="default"):
-        self.auth = KAuth(self, username, password, domain)
+        self.auth = Auth(self, username, password, domain)
         return self
     
     def logout(self):

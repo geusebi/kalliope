@@ -4,10 +4,10 @@ from hashlib import sha256
 from base64 import b64encode
 
 
-__all__ = ("KAuth", )
+__all__ = ("Auth", )
 
 
-class KAuth(object):
+class Auth(object):
     exa = "0123456789abcdef"
     datetime_fmt = "%Y-%m-%dT%H:%M:%S%Z"
 
@@ -49,12 +49,12 @@ class KAuth(object):
     
     def now(self, delta={}):
         dt = datetime.now(Zulu()) + timedelta(**delta)
-        return dt.strftime(KAuth.datetime_fmt)
+        return dt.strftime(Auth.datetime_fmt)
 
     @property
     def nonce(self):
         if self._nonce is None:
-            self._nonce = "".join(choices(KAuth.exa, k=32))
+            self._nonce = "".join(choices(Auth.exa, k=32))
 
         return self._nonce
 

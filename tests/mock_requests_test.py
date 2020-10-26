@@ -1,5 +1,5 @@
 import unittest 
-from kalliope import KSession
+from kalliope import Session
 from .doc_example import (
     credentials as c,
     expected as expc
@@ -25,7 +25,7 @@ class RequestsTest(unittest.TestCase):
     
     @responses.activate
     def test_get_salt(self):
-        conn = KSession.from_cs("http://admin:admin@192.168.1.1:8080/")
+        conn = Session.from_cs("http://admin:admin@192.168.1.1:8080/")
         
         _ = conn.get("/")
         

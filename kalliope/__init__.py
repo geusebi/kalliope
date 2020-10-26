@@ -1,4 +1,4 @@
-from .session import KSession
-from .auth import KAuth
+from .Session import Session
+from .Auth import Auth
 
-__all__ = ("KSession", "KAuth", )
+__all__ = ("Session", "Auth", )

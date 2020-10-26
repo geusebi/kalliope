@@ -1,5 +1,5 @@
 import unittest
-from kalliope import KAuth
+from kalliope import Auth
 from .doc_example import (
     credentials as c,
     expected as expc
@@ -8,7 +8,7 @@ from .doc_example import (
 
 class AuthDocTest(unittest.TestCase):
     def setUp(self):
-        self.auth = KAuth(None, c.username, c.password, c.domain)
+        self.auth = Auth(None, c.username, c.password, c.domain)
         self.auth.salt = c.salt
         self.auth._created = c.created
         self.auth._nonce = c.nonce
