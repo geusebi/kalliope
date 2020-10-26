@@ -1,5 +1,5 @@
 import unittest
-from pykalliope import KAuth
+from kalliope import KAuth
 from .doc_example import (
     credentials as c,
     expected as expc

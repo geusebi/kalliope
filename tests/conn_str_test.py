@@ -1,5 +1,5 @@
 import unittest
-from pykalliope.cs_re import cs_re
+from kalliope.cs_re import cs_re
 
 
 test_values = [

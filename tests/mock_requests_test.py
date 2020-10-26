@@ -1,5 +1,5 @@
 import unittest 
-from pykalliope import KSession
+from kalliope import KSession
 from .doc_example import (
     credentials as c,
     expected as expc
