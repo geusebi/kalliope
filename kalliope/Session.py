@@ -14,8 +14,7 @@ import requests
 # Absolutely not tested. 
 
 # Exempli gratia
-# sess = KSession("http", "10.0.0.1")
-# sess.login("user", "pass")
+# sess = KSession("http", "10.0.0.1").login("user", "pass")
 #
 # accounts = sess.get("/rest/account").json()
 
@@ -27,12 +26,40 @@ __all__ = ("Session", )
 
 
 class Session(object):
+    """
+    Create a session to communicate with a Kalliope PBX server
+    """
+
     _def_port = 80
     _def_headers = {
         "Accept": "application/json"
     }
     
     def __init__(self, scheme, address, port=None, timeout=4, headers=None):
+        """
+        Create a session to communicate with a Kalliope PBX server
+
+        Parameters:
+        scheme -- either `http` or `https`
+        port -- defaults to 80
+        timeout -- timeout for data exchanges (see `requests` module)
+        headers -- dict of headers to merge on every request
+
+        Example usage:
+        
+            s = Session("http", "192.168.1.1")
+            s.login("admin", "pass", "default")
+            accounts = s.get("/rest/account").json()
+            print(accounts)
+
+        Or with a more convenient connection string
+        (see `Session.from_cs`):
+
+            s = Session.from_cs("http://admin:pass@192.168.1.1/default")
+            accounts = s.get("/rest/account").json()
+            print(accounts)
+        """
+
         self.scheme, self.address, self.port = scheme, address, port
         
         self.timeout = timeout
@@ -45,6 +72,28 @@ class Session(object):
     
     @staticmethod
     def from_connection_string(conn_str, *args, **kwargs):
+        """
+        Create a session from a proper connection string
+
+        The connection string (`conn_str`) is of the form:
+            
+            scheme://user:pass@host:8080/domain
+
+        Where:
+
+            - `scheme` is either `http` or `https`,
+            - `user` and `pass`, if given, must be both present,
+            - `host` is a valid ip address, hostname or fqdn,
+            - `port` if present is the port to connect to,
+            - `domain` if present is the tenant's domain (default: `default`).
+        
+        E.g.:
+
+            Session.from_cs("http://admin:secret@server1.local")
+            Session.from_cs("https://server1.local/some_other_domain")
+            Session.from_cs("http://server1.local:8080")
+        """
+
         match = cs_re.match(conn_str)
         if not match:
             raise ValueError(f"Invalid connection string {conn_str!r}")
@@ -60,10 +109,27 @@ class Session(object):
     from_cs = from_conn_str = from_connection_string
     
     def login(self, username, password, domain="default"):
+        """
+        Update login informations for this session
+
+        Parameters:
+        `username` -- the username
+        `password` -- the password
+        `domain` -- the tenant's domain (default: default)
+        
+        Kalliope doesn't actually has a login procedure.
+        This function will just create and bind an `Auth` object with the given credentials.
+        Every subsequent requests from this session will include a proper 'X-authenticate'
+        header as authentication.
+
+        This method support call-chaining.
+        """
+
         self.auth = Auth(self, username, password, domain)
         return self
     
     def logout(self):
+        """Delete login informations for this session"""
         self.auth = None
         return self
     
