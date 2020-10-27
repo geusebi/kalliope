@@ -30,7 +30,6 @@ class Session(object):
     Create a session to communicate with a Kalliope PBX server
     """
 
-    _def_port = 80
     _def_headers = {
         "Accept": "application/json"
     }
@@ -41,7 +40,7 @@ class Session(object):
 
         Parameters:
         scheme -- either `http` or `https`
-        port -- defaults to 80
+        port -- the port to connect to
         timeout -- timeout for data exchanges (see `requests` module)
         headers -- dict of headers to merge on every request
 
