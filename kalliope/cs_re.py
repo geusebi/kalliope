@@ -1,7 +1,13 @@
 import re
 
+
+__all__ = ("connection_string_re", "conn_str_re", "cs_re", )
+
+
 # The format of conn_str_re matches connection strings of the form:
-#   http://user:pass@host/domain
+#
+#   http://user:pass@host:port/domain
+# 
 # Where:
 #   - scheme is either "http" or "https" and it is non optional,
 #   - user and pass are optional but have to be both present or unspecified,
@@ -55,6 +61,3 @@ connection_string = fr"""
 connection_string_re = re.compile(connection_string, re.VERBOSE)
 # Aliases
 conn_str_re = cs_re = connection_string_re
-
-
-__all__ = ["connection_string_re", "conn_str_re", "cs_re"]
