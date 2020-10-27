@@ -3,20 +3,13 @@ from .cs_re import cs_re
 import requests
 
 
-# Using requests might solve some problems encountered while sing urllib2.
+# Using requests might solve some problems encountered while using urllib2.
 # That being said I won't use Session objects because as of now I see no
 # reason to have a session-aware connection (kalliope pbx is not designed
 # this way). Even though there may be some advantages I'll try to avoid
 # such objects for now.
 # Still, I'll mimic some of the functionality (loosely) and try to use
 # the same class names.
-
-# Absolutely not tested
-
-# Exempli gratia
-# sess = KSession("http", "10.0.0.1").login("user", "pass")
-#
-# accounts = sess.get("/rest/account").json()
 
 # todo: test against a kalliope server
 # todo: add meaningful documentation
@@ -35,10 +28,10 @@ class Session(object):
         Create a session to communicate with a Kalliope PBX server
 
         Parameters:
-        scheme -- either `http` or `https`
-        port -- the port to connect to
-        timeout -- timeout for data exchanges (see `requests` module)
-        headers -- dict of headers to merge on every request
+        `scheme` -- either `http` or `https`
+        `port` -- the port to connect to
+        `timeout` -- timeout for data exchanges (see `requests` module)
+        `headers` -- dict of headers to merge on every request
 
         Example usage:
 
@@ -54,7 +47,6 @@ class Session(object):
             accounts = s.get("/rest/account").json()
             print(accounts)
         """
-
         self.scheme, self.address, self.port = scheme, address, port
 
         self.timeout = timeout
@@ -70,9 +62,15 @@ class Session(object):
         """
         Create a session from a proper connection string
 
+        Aliases:    Session.from_cs, Session.from_conn_str,
+                    Session.from_connection_string.
+
         The connection string (`conn_str`) is of the form:
 
-            scheme://user:pass@host:8080/domain
+            scheme://user:pass@host:port/domain
+
+        Extra arguments (`args` and `kwargs`) are passed as-is to
+        `Session.__init__`.
 
         Where:
 
@@ -88,7 +86,6 @@ class Session(object):
             Session.from_cs("https://server1.local/some_other_domain")
             Session.from_cs("http://server1.local:8080")
         """
-
         match = cs_re.match(conn_str)
         if not match:
             raise ValueError(f"Invalid connection string {conn_str!r}")
@@ -122,7 +119,6 @@ class Session(object):
 
         This method support call-chaining.
         """
-
         self.auth = Auth(self, username, password, domain)
         return self
 
@@ -132,6 +128,11 @@ class Session(object):
         return self
 
     def prepare_url(self, path):
+        """
+        Create a url from `path`
+
+        Not meant to be used directly.
+        """
         if path.startswith("/"):
             path = path[1:]
 
@@ -140,12 +141,28 @@ class Session(object):
         return f"{self.scheme}://{self.address}{port}/{path}"
 
     def prepare_headers(self, noauth=False, headers=None):
+        """
+        Create a `dict` of headers based for a request
+
+        Not meant to be used directly.
+
+        Parameters:
+        `noauth` -- whether to omit authentication
+        `headers` -- additional headers to merge into the request
+
+        The resulting `dict` is the combination of session's default
+        headers and the given `headers`.
+        If `noauth` is `False` then the `X-authenticate` header is added.
+
+        Raises `ValueError` if login is required but login credentials
+        are not available.
+        """
         if headers is None:
             headers = {}
 
         if noauth is False:
             if self.auth is None:
-                raise Exception("Not logged in")
+                raise ValueError("Not logged in")
             xheaders = self.auth.xauth()
         else:
             xheaders = {}
@@ -155,18 +172,36 @@ class Session(object):
     def request(
         self, method, path, noauth=False, headers=None, *args, **kwargs
     ):
+        """
+        Perform a request via `requests.request`
+
+        The `path` is preprocessed by `Session.prepare_url`.
+        `headers` are processed by `Session.prepare_headers`.
+        `args` and `kwargs` are passed as-is to `requests.request`.
+
+        Return a `Response` object upon success.
+        """
         url = self.prepare_url(path)
         headers = self.prepare_headers(noauth, headers)
         return requests.request(method, url, headers=headers, *args, **kwargs)
 
     def get(self, *args, **kwargs):
+        """
+        Perform a `GET` request
+
+        See `Session.request` and `requests.request` for documentation and
+        details.
+        """
         return self.request("GET", *args, **kwargs)
 
     def post(self, *args, **kwargs):
         return self.request("POST", *args, **kwargs)
+    post.__doc__ = get.__doc__.replace("GET", "POST", 1)  # Lazy
 
     def put(self, *args, **kwargs):
         return self.request("PUT", *args, **kwargs)
+    put.__doc__ = get.__doc__.replace("GET", "PUT", 1)  # Quite lazy
 
     def delete(self, *args, **kwargs):
         return self.request("DELETE", *args, **kwargs)
+    delete.__doc__ = get.__doc__.replace("GET", "DELETE", 1)  # Very quite lazy
