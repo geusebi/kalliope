@@ -7,7 +7,7 @@ __all__ = ("connection_string_re", "conn_str_re", "cs_re", )
 # The format of conn_str_re matches connection strings of the form:
 #
 #   http://user:pass@host:port/domain
-# 
+#
 # Where:
 #   - scheme is either "http" or "https" and it is non optional,
 #   - user and pass are optional but have to be both present or unspecified,
@@ -28,7 +28,7 @@ username = fr"(?P<username>{alnumspec}+)"
 password = fr"(?P<password>{alnumspec}+)"
 domain = fr"(?P<domain>{alnumspec}+)"  # As in "tenant's domain"
 
-# Port number is any digit with a length of 1 to 5 
+# Port number is any digit with a length of 1 to 5
 # ports 0 and from 65536 to 99999 are considered valid because regexes
 # tend to be unreadable in these cases (i.e.):
 #   "6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{1,3}?"

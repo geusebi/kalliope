@@ -1,5 +1,5 @@
 from datetime import datetime, tzinfo, timedelta
-from random import choices, seed as _seed
+from random import choices
 from hashlib import sha256
 from base64 import b64encode
 
@@ -15,9 +15,9 @@ class Auth(object):
         self.conn = conn
         self.user, self.password = user, password
         self.domain = "default" if domain is None else domain
-        
+
         self._salt = self._created = self._nonce = None
-    
+
     def xauth(self, reset=True):
         value = (
             f'RestApiUsernameToken '
@@ -29,7 +29,7 @@ class Auth(object):
         if reset:
             self._nonce = None
             self._created = None
-        
+
         return {"X-authenticate": value}
 
     @property
@@ -46,7 +46,7 @@ class Auth(object):
         data = f"{self.password}{{{self.salt}}}"
         message = bytearray(data, "utf-8")
         return sha256(message).hexdigest()
-    
+
     def now(self, delta={}):
         dt = datetime.now(Zulu()) + timedelta(**delta)
         return dt.strftime(Auth.datetime_fmt)
@@ -60,9 +60,9 @@ class Auth(object):
 
     @property
     def created(self):
-        if self._created == None:
+        if self._created is None:
             self._created = self.now()
-        
+
         return self._created
 
     @property
@@ -71,18 +71,18 @@ class Auth(object):
             if self.conn is None:
                 raise ValueError("No connection to get the 'salt' value")
             path = f"/rest/salt/{self.domain}"
-            headers={"Accept": "application/json"}
-            
+            headers = {"Accept": "application/json"}
+
             response = self.conn.get(path, noauth=True, headers=headers)
             data = response.json()
             self._salt = data["salt"]
-        
+
         return self._salt
 
     @salt.setter
     def salt(self, value):
         self._salt = value
-    
+
     def __repr__(self):
         return (
             f"{self.__class__.__name__}("
@@ -95,7 +95,7 @@ class Auth(object):
             f"nonce={self.nonce!r}"
             f")"
         )
-    
+
     def __str__(self):
         header = self.xauth(False)
         key = "X-authenticate"
@@ -105,9 +105,9 @@ class Auth(object):
 class Zulu(tzinfo):
     def utcoffset(self, dt):
         return timedelta(0)
-    
+
     def dst(self, dt):
         return timedelta(0)
-    
+
     def tzname(self, dt):
         return "Z"
