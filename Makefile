@@ -23,17 +23,17 @@ test: .test-success
 	
 
 .test-success: $(SRCS) $(TESTS)
-	rm -f .test-success
+	rm -f ".test-success"
 	$(PYTHON) -m unittest -v tests
 	make -t .test-success
 
 clean:
-	rm -rf __pycache__
-	rm -rf $(NAME)/__pycache__
-	rm -rf tests/__pycache__
+	rm -rf "__pycache__"
+	rm -rf "$(NAME)/__pycache__"
+	rm -rf "tests/__pycache__"
 
 distclean: clean
-	rm -rf dist
-	rm -rf $(NAME).egg-info
-	rm -f .test-success
+	rm -rf "dist"
+	rm -rf "$(NAME).egg-info"
+	rm -f ".test-success"
 
