@@ -103,6 +103,11 @@ class Auth(object):
 
 
 class Zulu(tzinfo):
+    """
+    Dummy timezone class with name "Z" and null delta over UTC
+
+    Todo: check if this is correct.
+    """
     def utcoffset(self, dt):
         return timedelta(0)
 
