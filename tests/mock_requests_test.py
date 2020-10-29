@@ -7,12 +7,15 @@ from .doc_example import (
 import responses
 
 
+_DUMMY_DATA = {"foo": "bar"}
+
+
 class RequestsTest(unittest.TestCase):
     def setUp(self):
         responses.add(
             responses.GET,
-            'http://192.168.1.1:8080/',
-            json={},
+            'http://192.168.1.1:8080/rest/account',
+            json=_DUMMY_DATA,
             status=200
         )
 
@@ -22,11 +25,22 @@ class RequestsTest(unittest.TestCase):
             json={"salt": c.salt},
             status=200
         )
-    
+
     @responses.activate
     def test_get_salt(self):
-        conn = Session.from_cs("http://admin:admin@192.168.1.1:8080/")
+        conn = Session("http://admin:admin@192.168.1.1:8080/")
         
-        _ = conn.get("/")
-        
+        _ = conn.get("/rest/account")
+
         self.assertEqual(conn.auth.salt, c.salt)
+
+    @responses.activate
+    def test_get_response(self):
+        conn = Session("http://admin:admin@192.168.1.1:8080/")
+        
+        response = conn.get("/rest/account")
+
+        self.assertIn("X-authenticate", response.request.headers.keys())
+
+        data = response.json()
+        self.assertEqual(data, _DUMMY_DATA)

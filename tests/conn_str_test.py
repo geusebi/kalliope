@@ -1,18 +1,19 @@
 import unittest
-from kalliope.cs_re import cs_re
+from kalliope.utils import parse_conn_str 
+from types import SimpleNamespace as NS
 
 
 test_values = [
-    ('http://example.com', ('http', None, None, 'example.com', None, None)),
-    ('https://example.com', ('https', None, None, 'example.com', None, None)),
-    ('http://example.com/default', ('http', None, None, 'example.com', None, 'default')),
-    ('http://example.com:8080/default', ('http', None, None, 'example.com', '8080', 'default')),
-    ('http://user:pass@example.com/default', ('http', 'user', 'pass', 'example.com', None, 'default')),
-    ('   http://user:pass@example.com/default   ', ('http', 'user', 'pass', 'example.com', None, 'default')),
-    ('http://user#:pass,@example.com/default-', ('http', 'user#', 'pass,', 'example.com', None, 'default-')),
-    ('htp://example.com', None),
-    ('http://user@example.com', None),
-    ('http://user:@example.com', None),
+    ('http://example.com', NS(domain='default', hostname='example.com', password=None, port=None, scheme='http', username=None)),
+    ('https://example.com', NS(domain='default', hostname='example.com', password=None, port=None, scheme='https', username=None)),
+    ('http://example.com/default', NS(domain='default', hostname='example.com', password=None, port=None, scheme='http', username=None)),
+    ('http://example.com:8080/default', NS(domain='default', hostname='example.com', password=None, port=8080, scheme='http', username=None)),
+    ('http://user:pass@example.com/default', NS(domain='default', hostname='example.com', password='pass', port=None, scheme='http', username='user')),
+    ('   http://user:pass@example.com/default   ', NS(domain='default', hostname='example.com', password='pass', port=None, scheme='http', username='user')),
+    ('http://user#:pass,@example.com/default-', NS(domain='default', hostname='user', password=None, port=None, scheme='http', username=None)),
+    ('htp://example.com', (ValueError, "Unsupported scheme 'htp'")),
+    ('http://user@example.com', (ValueError, "Incomplete login credentials'")),
+    ('http://user:   @example.com', (ValueError, "Incomplete login credentials'")),
 ]
 
 
@@ -20,8 +21,11 @@ class ConnectionStringTest(unittest.TestCase):
     def test_connection_string(self):
         for i, (conn_str, expected) in enumerate(test_values):
             with self.subTest(sub_test_num=i):
-                match = cs_re.match(conn_str)
-                if match:
-                    self.assertEqual(match.groups(), expected)
+                if isinstance(expected, tuple):
+                    exception, message = expected
+                    with self.assertRaises(exception, msg=message):
+                        parts = parse_conn_str(conn_str)
+                        print(parts)
                 else:
-                    self.assertEqual(None, expected)
+                    parts = parse_conn_str(conn_str)
+                    self.assertEqual(parts, expected)

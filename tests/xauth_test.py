@@ -8,8 +8,7 @@ from .doc_example import (
 
 class AuthDocTest(unittest.TestCase):
     def setUp(self):
-        self.auth = Auth(None, c.username, c.password, c.domain)
-        self.auth.salt = c.salt
+        self.auth = Auth(c.username, c.password, c.domain, c.salt)
         self.auth._created = c.created
         self.auth._nonce = c.nonce
         
