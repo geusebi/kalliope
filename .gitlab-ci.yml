@@ -8,7 +8,7 @@ test-all:
   stage: test
   script:
     - pip3 install requests responses
-    - python3 -m unittest -v tests
+    - python3 -m unittest -v
 
 deploy-pypi:
   stage: deploy
