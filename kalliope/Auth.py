@@ -11,12 +11,11 @@ class Auth(object):
     exa = "0123456789abcdef"
     datetime_fmt = "%Y-%m-%dT%H:%M:%S%Z"
 
-    def __init__(self, conn, user, password, domain=None):
-        self.conn = conn
+    def __init__(self, user, password, domain, salt=None):
         self.user, self.password = user, password
-        self.domain = "default" if domain is None else domain
-
-        self._salt = self._created = self._nonce = None
+        self.domain = domain
+        self._salt = salt
+        self._created = self._nonce = None
 
     def xauth(self, reset=True):
         value = (
@@ -68,33 +67,12 @@ class Auth(object):
     @property
     def salt(self):
         if self._salt is None:
-            if self.conn is None:
-                raise ValueError("No connection to get the 'salt' value")
-            path = f"/rest/salt/{self.domain}"
-            headers = {"Accept": "application/json"}
-
-            response = self.conn.get(path, noauth=True, headers=headers)
-            data = response.json()
-            self._salt = data["salt"]
-
+            raise ValueError("Missing salt value")
         return self._salt
 
     @salt.setter
     def salt(self, value):
         self._salt = value
-
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"conn={self.conn!r}, "
-            f"user={self.user!r}, "
-            f"password={self.password!r}, "
-            f"domain={self.domain!r}, "
-            f"salt={self.salt!r}, "
-            f"created={self.created!r}, "
-            f"nonce={self.nonce!r}"
-            f")"
-        )
 
     def __str__(self):
         header = self.xauth(False)
