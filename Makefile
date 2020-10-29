@@ -23,9 +23,9 @@ test: .test-success
 	
 
 .test-success: $(SRCS) $(TESTS)
-	rm -f ".test-success"
-	$(PYTHON) -m unittest -v tests
-	make -t .test-success
+	@rm -f ".test-success"
+	$(PYTHON) -m unittest -v
+	@touch .test-success
 
 clean:
 	rm -rf "__pycache__"
