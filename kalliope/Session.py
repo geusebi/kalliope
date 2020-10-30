@@ -2,7 +2,8 @@ from .Auth import Auth
 from .utils import parse_conn_str
 import requests
 
-# Using requests might solve some problems encountered while using urllib2.
+# Using requests might solve some problems encountered while using
+# urllib2.
 
 # todo: test against a kalliope server
 # todo: add meaningful documentation
@@ -28,7 +29,7 @@ class Session(requests.Session):
             print(accounts)
         """
         super().__init__()
-        
+
         self._url = url = parse_conn_str(connection_string)
         if url.username is not None:
             self.login(url.username, url.password, url.domain)
@@ -50,17 +51,17 @@ class Session(requests.Session):
         """
         url = self._url
         url.username, url.password, url.domain = username, password, domain
-        
+
         self.auth = None
-        
+
         try:
             response = self.get(f"/rest/salt/{domain}")
             salt = response.json()["salt"]
         except Exception:
-            msg = f"Could not retrieve salt value"
+            msg = "Could not retrieve salt value"
             raise ValueError(msg)
-        
-        self.auth = KalliopeAuth(username, password, domain, salt)        
+
+        self.auth = KalliopeAuth(username, password, domain, salt)
         return self.auth
 
     def logout(self):
@@ -80,7 +81,7 @@ class Session(requests.Session):
 
         url = self._url
         port = f":{url.port}" if url.port else ""
-        
+
         return f"{url.scheme}://{url.hostname}{port}/{path}"
 
     def request(self, method, path, *args, **kwargs):

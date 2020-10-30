@@ -14,12 +14,16 @@ credentials = NS(
 
 expected = NS(
     digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=",
-    digest_pass="dd7b0be7fa37d6cbaf0b842bf7532f229cb79ab8d54d509c2aa7eea27a53cd5e",
+    digest_pass=(
+        "dd7b0be7fa37d6cbaf0b842bf7532f22"
+        "9cb79ab8d54d509c2aa7eea27a53cd5e"
+        ),
     xheader_key="X-authenticate",
     xheader_value=(
         'RestApiUsernameToken Username="admin", Domain="default", '
         'Digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=", '
-        'Nonce="bfb79078ff44c35714af28b7412a702b", Created="2016-04-29T15:48:26Z"'
+        'Nonce="bfb79078ff44c35714af28b7412a702b", '
+        'Created="2016-04-29T15:48:26Z"'
     ),
 )
 

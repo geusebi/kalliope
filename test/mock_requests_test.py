@@ -1,9 +1,6 @@
-import unittest 
+import unittest
 from kalliope import Session
-from .doc_example import (
-    credentials as c,
-    expected as expc
-)
+from .doc_example import credentials as c
 import responses
 
 
@@ -29,7 +26,7 @@ class RequestsTest(unittest.TestCase):
     @responses.activate
     def test_get_salt(self):
         conn = Session("http://admin:admin@192.168.1.1:8080/")
-        
+
         _ = conn.get("/rest/account")
 
         self.assertEqual(conn.auth.salt, c.salt)
@@ -37,7 +34,7 @@ class RequestsTest(unittest.TestCase):
     @responses.activate
     def test_get_response(self):
         conn = Session("http://admin:admin@192.168.1.1:8080/")
-        
+
         response = conn.get("/rest/account")
 
         self.assertIn("X-authenticate", response.request.headers.keys())
