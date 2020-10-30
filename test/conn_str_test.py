@@ -10,10 +10,12 @@ test_values = [
     ('http://example.com:8080/default', NS(domain='default', hostname='example.com', password=None, port=8080, scheme='http', username=None)),
     ('http://user:pass@example.com/default', NS(domain='default', hostname='example.com', password='pass', port=None, scheme='http', username='user')),
     ('   http://user:pass@example.com/default   ', NS(domain='default', hostname='example.com', password='pass', port=None, scheme='http', username='user')),
-    ('http://user#:pass,@example.com/default-', NS(domain='default', hostname='user', password=None, port=None, scheme='http', username=None)),
+    ('http://user%23:pass%2C@example.com/default-', NS(domain='default-', hostname='example.com', password="pass,", port=None, scheme='http', username="user#")),
     ('htp://example.com', (ValueError, "Unsupported scheme 'htp'")),
     ('http://user@example.com', (ValueError, "Incomplete login credentials'")),
+    ('http://user:@example.com', (ValueError, "Incomplete login credentials'")),
     ('http://user:   @example.com', (ValueError, "Incomplete login credentials'")),
+    ('http://user: %20 @example.com', (ValueError, "Incomplete login credentials'")),
 ]
 
 
