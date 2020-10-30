@@ -50,15 +50,15 @@ Session("scheme://user:password@host:port/tenants_domain")
 ```
 Where:
 
-- **`scheme`** is either `http` or `https` (optional),
+- **`scheme`** is either `http` or `https` (default: "http"),
 - **`user`** and **`password`** are the credentials (optional),
 - **`host`** is the hostname or ip address,
 - **`port`** is the port to connect to (optional),
-- **`tenants_domain`** is the what the name suggests (optional).
+- **`tenants_domain`** is the domain of the tenant (default: "default").
 
 If the scheme is not specified then the default one (`http`) is used but
 be aware that you still need to place the double slash in front of the
-url as per RFC???.
+url as per RFC 1808.
 
 Username and password must be both present or both missing. If you wish
 to give the credentials later use `Session.login`. Without login
@@ -76,8 +76,8 @@ print("Req 1:", response1.request.headers["X-authenticate"])
 print("Req 2:", response2.request.headers["X-authenticate"])
 ```
 ```
-Req 1: RestApiUsernameToken Username="admin", Domain="default", Digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=", Nonce="bfb79078ff44c35714af28b7412a702b", Created="2016-04-29T15:48:26Z"
-Req 2: RestApiUsernameToken Username="admin", Domain="default", Digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=", Nonce="bfb79078ff44c35714af28b7412a702b", Created="2016-04-29T15:48:26Z"
+Req 1: RestApiUsernameToken Username="admin", Domain="default", Digest="FLExUJyV4pPMr20o6e7TorEsdfZxkqvJcBNCe1nxecE=", Nonce="2dc477ac10d6c07b3fe008f636037733", Created="2020-10-30T15:33:04Z"
+Req 2: RestApiUsernameToken Username="admin", Domain="default", Digest="69jCdIIXk0pT/f6CJZB9E+UacP2fnFVFMBqUuYIbGhs=", Nonce="33e79f33fbc4ac535ed3183dfac97de6", Created="2020-10-30T15:33:08Z"
 ```
 
 ## Auth
@@ -88,13 +88,13 @@ headers given the credentials and `salt` value.
 ```python
 from kalliope import Auth
 
-salt = fetch_salt_value(...)
+salt = fetch_salt_value(...) #  5ebe2294ecd0e0f08eab7690d2a6ee69
 
 auth = Auth("admin", "nimda", "default", salt)
 print(auth.xauth())
 ```
-```
-{"X-authenticate": 'RestApiUsernameToken Username="admin", Domain="default", Digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=", Nonce="bfb79078ff44c35714af28b7412a702b", Created="2016-04-29T15:48:26Z"'}
+```python
+{'X-authenticate': 'RestApiUsernameToken Username="admin", Domain="default", Digest="8V5nQKp9GoCvhv5J+s3REprWXvH0txZJwmZdaKoJAyQ=", Nonce="62f230121d1d99cef5c8cb83c96cf6c4", Created="2020-10-30T15:33:12Z"'}
 ```
 
 The method `Auth.xauth` returns a `dict` with the newly generated token
@@ -108,7 +108,7 @@ For testing purposes, the reset phase, can be inhibited with
 the `Auth` object instance, i.e. `print(auth)`
 
 ```
-X-authenticate: RestApiUsernameToken Username="admin", Domain="default", Digest="+PJg7Tb3v98XnL6iJVv+v5hwhYjdzQ2tIWxvJB2cE40=", Nonce="bfb79078ff44c35714af28b7412a702b", Created="2016-04-29T15:48:26Z"
+X-authenticate: RestApiUsernameToken Username="admin", Domain="default", Digest="8V5nQKp9GoCvhv5J+s3REprWXvH0txZJwmZdaKoJAyQ=", Nonce="62f230121d1d99cef5c8cb83c96cf6c4", Created="2020-10-30T15:33:12Z"
 ```
 
 ### KalliopeAuth
