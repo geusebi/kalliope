@@ -1,5 +1,5 @@
 from types import SimpleNamespace as NS
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 
 def parse_conn_str(cs, scheme="http"):
@@ -14,13 +14,11 @@ def parse_conn_str(cs, scheme="http"):
     if url.scheme not in ("http", "https", ):
         raise ValueError(f"Unsupported scheme '{url.scheme}'")
 
-    url.username = (parts.username or "").strip()
-    if url.username == "":
-        url.username = None
+    username = unquote(parts.username or "").strip()
+    url.username = username or None
 
-    url.password = (parts.password or "").strip()
-    if url.password == "":
-        url.password = None
+    password = unquote(parts.password or "").strip()
+    url.password = password or None
 
     if (url.username is None) ^ (url.password is None):
         raise ValueError("Incomplete login credentials'")
