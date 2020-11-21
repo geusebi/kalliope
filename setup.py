@@ -7,7 +7,7 @@ long_desc = open("README.md").read()
 
 setuptools.setup(
     name='kalliopepbx',
-    version='0.0.1',
+    version='0.0.2',
     packages=('kalliopepbx', ),
 
     description=short_desc,
