@@ -120,5 +120,5 @@ itself. The salt value is automatically fetched from the server.
 ## License
 
 This software is released under the
-[LGPLv3](www.gnu.org/licenses/lgpl-3.0.html)  
+[LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.html)  
 GNU Lesser General Public License Version 3, 29 June 2007.
