@@ -1,5 +1,5 @@
 import unittest
-from kalliope.utils import parse_conn_str
+from kalliopepbx.utils import parse_conn_str
 from types import SimpleNamespace as NS
 
 

@@ -1,7 +1,7 @@
 PYTHON=$(shell which python3)
 
-# NAME=kalliope
-# FULLNAME=kalliope-0.0.1
+# NAME=kalliopepbx
+# FULLNAME=kalliopepbx-0.0.1
 NAME=$(shell $(PYTHON) setup.py --name)
 FULLNAME=$(shell $(PYTHON) setup.py --fullname)
 
@@ -34,6 +34,7 @@ clean:
 
 distclean: clean
 	rm -rf "dist"
+	rm -rf "build"
 	rm -rf "$(NAME).egg-info"
 	rm -f ".test-success"
 

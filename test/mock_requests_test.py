@@ -1,5 +1,5 @@
 import unittest
-from kalliope import Session
+from kalliopepbx import Session
 from .doc_example import credentials as c
 import responses
 

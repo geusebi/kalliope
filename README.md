@@ -13,7 +13,7 @@ Communication module for Kalliope PBX servers
 
 To install from [Pypi](www.pypi.org/) using `pip`:
 ```sh
-pip install kalliope
+pip install kalliopepbx
 ```
 
 Or to install directly from git sources:
@@ -23,14 +23,14 @@ cd kalliope
 python setup.py install --user
 ```
 
-To install `kalliope` system-wide, remove `--user` from the last line
-and use `sudo` or other subsystems to run the command as a privileged
-user.
+To install `kalliopepbx` system-wide, remove `--user` from the last 
+line and use `sudo` or other subsystems to run the command as a 
+privileged user.
 
 ## Usage example
 
 ```python
-from kalliope import Session
+from kalliopepbx import Session
 
 endpoint = "http://user:password@192.168.1.1/"
 conn = Session(endpoint)
@@ -82,11 +82,11 @@ Req 2: RestApiUsernameToken Username="admin", Domain="default", Digest="69jCdIIX
 
 ## Auth
 
-The `kalliope.Auth` is a standalone class that can be used to generate
-headers given the credentials and `salt` value.
+The `kalliopepbx.Auth` is a standalone class that can be used to 
+generate headers given the credentials and `salt` value.
 
 ```python
-from kalliope import Auth
+from kalliopepbx import Auth
 
 salt = fetch_salt_value(...) #  5ebe2294ecd0e0f08eab7690d2a6ee69
 

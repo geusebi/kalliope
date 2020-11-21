@@ -1,5 +1,5 @@
 import unittest
-from kalliope import Auth
+from kalliopepbx import Auth
 from .doc_example import (
     credentials as c,
     expected as expc
