@@ -1,7 +1,7 @@
 # Python KalliopePBX authentication module
 
 Communication module for Kalliope PBX servers  
-(see [Kalliope PBX](<www.kalliopepbx.com/>) for more informations).
+(see [Kalliope PBX](<https://www.kalliopepbx.com/>) for more informations).
 
 ## IMPORTANT
 
@@ -11,7 +11,7 @@ Communication module for Kalliope PBX servers
 
 ## Install
 
-To install from [Pypi](www.pypi.org/) using `pip`:
+To install from [Pypi](https://www.pypi.org/) using `pip`:
 ```sh
 pip install kalliopepbx
 ```
