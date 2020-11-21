@@ -113,8 +113,8 @@ X-authenticate: RestApiUsernameToken Username="admin", Domain="default", Digest=
 
 ### KalliopeAuth
 
-The `requests.AuthBase` implementation is used by `kalliope.Session` to
-update requests' headers. It is created upon login by `kalliope.Session`
+The `requests.AuthBase` implementation is used by `kalliopepbx.Session` to
+update requests' headers. It is created upon login by `kalliopepbx.Session`
 itself. The salt value is automatically fetched from the server.
 
 ## License
