@@ -1,6 +1,7 @@
 from .Auth import Auth
 from .utils import parse_conn_str
 import requests
+from copy import deepcopy
 
 # Using requests might solve some problems encountered while using
 # urllib2.
@@ -17,7 +18,7 @@ class Session(requests.Session):
         "Accept": "application/json"
     }
 
-    def __init__(self, connection_string):
+    def __init__(self, connection_string, headers=None, timeout=None):
         """
         Create a session to communicate with a Kalliope PBX server
 
@@ -31,6 +32,9 @@ class Session(requests.Session):
         super().__init__()
 
         self._url = url = parse_conn_str(connection_string)
+        self.headers = headers if headers is not None else Session._def_headers
+        self.timeout = timeout
+
         if url.username is not None:
             self.login(url.username, url.password, url.domain)
 
@@ -84,17 +88,23 @@ class Session(requests.Session):
 
         return f"{url.scheme}://{url.hostname}{port}/{path}"
 
-    def request(self, method, path, *args, **kwargs):
-        """
-        Perform a request via `requests.request`
+    def send(self, *args, timeout=None, **kwargs):
+        timout = timeout if timeout is None else self.timeout
+        
+        return super().send(*args, timeout=timeout, **kwargs)
 
-        The `path` is preprocessed by `Session.make_url`.
-        `args` and `kwargs` are passed as-is to `requests.Session.request`.
-
-        Return a `Response` according to `requests.Session.request`.
+    def prepare_request(self, request):
         """
-        full_url = self.make_url(path)
-        return super().request(method, full_url, *args, **kwargs)
+        Perpare a request.
+
+        `request.url` is preprocessed by `Session.make_url`.
+
+        Return a `PreparedRequest` according to `requests.Session.prepare_request`.
+        """
+        req = deepcopy(request)
+        req.url = self.make_url(request.url)
+        
+        return super().prepare_request(req)
 
 
 class KalliopeAuth(Auth, requests.auth.AuthBase):
