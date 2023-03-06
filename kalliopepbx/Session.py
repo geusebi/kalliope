@@ -89,7 +89,7 @@ class Session(requests.Session):
         return f"{url.scheme}://{url.hostname}{port}/{path}"
 
     def send(self, *args, timeout=None, **kwargs):
-        timout = timeout if timeout is None else self.timeout
+        timout = timeout if timeout is not None else self.timeout
         
         return super().send(*args, timeout=timeout, **kwargs)
 
